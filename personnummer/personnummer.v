@@ -107,7 +107,7 @@ fn (mut p Personnummer) parse(input string) ?bool {
 	return true
 }
 
-pub fn (p &Personnummer) valid() bool {
+pub fn (p Personnummer) valid() bool {
 	 valid := luhn(p.year + p.month + p.day + p.num) == p.check.int()
 
 	 if valid && test_date(p.full_year, p.month, p.day) {
