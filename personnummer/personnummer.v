@@ -3,7 +3,7 @@ module personnummer
 import time
 import math
 
-// luhn will test if the given string is a valid luhn string.
+// Test if the given string is a valid luhn string.
 fn luhn(str string) int {
 	mut sum := 0
 
@@ -19,18 +19,18 @@ fn luhn(str string) int {
 		sum += v
 	}
 
-	 return int(math.pow(math.ceil(math.round(sum)/10)*10 - sum, 1.0))
+	return int(math.pow(math.ceil(math.round(sum)/10)*10 - sum, 1.0))
 }
 
-
-fn test_date(year string, month string , day string ) bool {
-	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L34
-	//  y := year.int()
-	//  m := month.int()
-	//  dd := day.int()
-	//  d := DateTime(y, m, dd);
-	// return d.year == y && d.month == m && d.day == dd;
-	return true
+// Test if the input parameters are a valid date or not.
+fn test_date(year string, month string , day string) bool {
+	y := year.int()
+	m := month.int()
+	dd := day.int()
+	d := time.parse('$year-$month-$day 00:00:00') or {
+		return false
+	}
+	return d.year == y && d.month == m && d.day == dd
 }
 
 // Personnummer represents the personnummer struct.
@@ -44,14 +44,29 @@ struct Personnummer {
 	sep                 string
 	num                 string
 	check               string
-	leap_year           bool
-	coordination_number bool
 }
 
 // // Options represents the personnummer options.
 // struct Options {
 // }
 
+// New parse a Swedish personal identity numbers and returns a new struct or a error.
+pub fn new(pin string) ?Personnummer {
+	mut p := Personnummer{}
+
+	p.parse(pin) or {
+		return error('parse error')
+	}
+
+	if !p.valid() {
+		return error('new error')
+	}
+
+	return p
+}
+
+// Format a Swedish personal identity number as one of the official formats,
+// A long format or a short format.
 pub fn (p Personnummer) format(longFormat bool) string {
 	if longFormat {
 		return p.century + p.year + p.month + p.day + p.num + p.check
@@ -60,26 +75,46 @@ pub fn (p Personnummer) format(longFormat bool) string {
 	return p.year + p.month + p.day + p.sep + p.num + p.check
 }
 
+// Check if a Swedish personal identity number is for a female.
 pub fn (p Personnummer) is_female() bool {
 	return !p.is_male()
 }
 
+// Check if a Swedish personal identity number is for a male.
 pub fn (p Personnummer) is_male() bool {
 	sex_digit := p.num[2 .. 3].int()
 	return sex_digit % 2 == 1
 }
 
-pub fn (p Personnummer) get_age() int {
-	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L82
-	return 0
-}
-
+// Check if a Swedish personal identity number is a coordination number or not.
 pub fn (p Personnummer) is_coordination_number() bool {
-	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L98
-	return false
+	return test_date(p.full_year, p.month, (p.day.int()-60).str())
 }
 
-// parse Swedish personal identity numbers and set struct properpties or return a error.
+// Get age from a Swedish personal identity number.
+pub fn (p Personnummer) get_age() int {
+	mut age_day := p.day
+	if p.is_coordination_number() {
+		age_day = (age_day.int() - 60).str()
+	}
+
+	now := time.now()
+	date := time.parse('$p.full_year-$p.month-$age_day 00:00:00') or {
+		return 0
+	}
+
+	if date.month > now.month {
+		return now.year - date.year - 1
+	}
+
+	if date.month == now.month && date.day > now.day {
+		return now.year - date.year - 1
+	}
+
+	return now.year - date.year
+}
+
+// Parse Swedish personal identity numbers and set struct properpties or return a error.
 fn (mut p Personnummer) parse(input string) ?bool {
 	mut pin := input
 
@@ -135,44 +170,13 @@ fn (mut p Personnummer) parse(input string) ?bool {
 	return true
 }
 
+// Validate a Swedish personal identity number.
 pub fn (p Personnummer) valid() bool {
-	 valid := luhn(p.year + p.month + p.day + p.num) == p.check.int()
+	valid := luhn(p.year + p.month + p.day + p.num) == p.check.int()
 
-	 if valid && test_date(p.full_year, p.month, p.day) {
-		 return true
-	 }
-
-	 // TODO:
-	 // - isCoordinationNumber
-
-		// try
-		// {
-		// 	if (valid && testDate(p.fullYear, p.month, p.day))
-		// 	{
-		// 		return true;
-		// 	}
-		// }
-		// catch (Throwable)
-		// {
-		// 	return valid && p.isCoordinationNumber();
-		// }
-
-		// return false;
-
-	return false
-}
-
-// New parse a Swedish personal identity numbers and returns a new struct or a error.
-pub fn new(pin string) ?Personnummer {
-	mut p := Personnummer{}
-
-	p.parse(pin) or {
-		return error('parse error')
+	if valid && test_date(p.full_year, p.month, p.day) {
+		return true
 	}
 
-	if !p.valid() {
-		return error('new error')
-	}
-
-	return p
+	return valid && p.is_coordination_number()
 }
