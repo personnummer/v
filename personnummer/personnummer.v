@@ -29,7 +29,13 @@ fn test_date(year string, month string, day string) bool {
 	y := year.int()
 	m := month.int()
 	dd := day.int()
-	d := time.parse('$year-$month-$day 00:00:00') or { return false }
+
+	d := time.new_time(time.Time{
+		year: y,
+		month: m,
+		day: dd
+	})
+
 	return d.year == y && d.month == m && d.day == dd
 }
 
@@ -98,7 +104,11 @@ pub fn (p Personnummer) get_age() int {
 	}
 
 	now := time.now()
-	date := time.parse('$p.full_year-$p.month-$age_day 00:00:00') or { return 0 }
+	date := time.new_time(time.Time{
+		year: p.full_year.int(),
+		month: p.month.int(),
+		day: age_day.int(),
+	})
 
 	if date.month > now.month {
 		return now.year - date.year - 1
@@ -143,10 +153,10 @@ fn (mut p Personnummer) parse(input string) ?bool {
 
 	p.sep = '-'
 
-	current_time := time.now()
+	now := time.now()
 
 	if p.century.len == 0 {
-		mut base_year := current_time.year
+		mut base_year := now.year
 
 		if plus {
 			p.sep = '+'
@@ -155,7 +165,7 @@ fn (mut p Personnummer) parse(input string) ?bool {
 
 		p.century = (base_year - (base_year - p.year.int()) % 100).str()[0..2]
 	} else {
-		if current_time.year - (p.century + p.year).int() < 100 {
+		if now.year - (p.century + p.year).int() < 100 {
 			p.sep = '-'
 		} else {
 			p.sep = '+'
