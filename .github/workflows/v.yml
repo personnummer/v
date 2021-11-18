@@ -1,0 +1,32 @@
+name: test
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['12']
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install V
+      run: |
+        pushd /tmp
+        git clone https://github.com/vlang/v
+        cd v
+        make -j2
+        popd
+    - name: Run personnummer tests
+      run: |
+        export PATH="/tmp/v:$PATH"
+        pwd
+        v -stats test .
