@@ -65,6 +65,15 @@ pub fn parse(pin string) ?Personnummer {
 	return p
 }
 
+// valid validates a Swedish personal identity number.
+pub fn valid(pin string) bool {
+	p := parse(pin) or {
+		return false
+	}
+
+	return p.valid()
+}
+
 // format will format a Swedish personal identity number as one of
 // the official formats, long format or a short format.
 pub fn (p Personnummer) format(longFormat bool) string {
