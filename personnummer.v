@@ -31,8 +31,8 @@ fn validate_date(year string, month string, day string) bool {
 	dd := day.int()
 
 	d := time.new_time(time.Time{
-		year: y,
-		month: m,
+		year: y
+		month: m
 		day: dd
 	})
 
@@ -67,9 +67,7 @@ pub fn parse(pin string) ?Personnummer {
 
 // valid validates a Swedish personal identity number.
 pub fn valid(pin string) bool {
-	p := parse(pin) or {
-		return false
-	}
+	p := parse(pin) or { return false }
 
 	return p.valid()
 }
@@ -110,9 +108,9 @@ pub fn (p Personnummer) get_age() int {
 
 	now := time.now()
 	date := time.new_time(time.Time{
-		year: p.full_year.int(),
-		month: p.month.int(),
-		day: age_day.int(),
+		year: p.full_year.int()
+		month: p.month.int()
+		day: age_day.int()
 	})
 
 	if date.month > now.month {
