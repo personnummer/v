@@ -24,8 +24,8 @@ fn luhn(str string) int {
 	return int(math.pow(math.ceil(math.round(sum) / 10) * 10 - sum, 1.0))
 }
 
-// test_date if the input parameters are a valid date or not.
-fn test_date(year string, month string, day string) bool {
+// validate_date if the input parameters are a valid date or not.
+fn validate_date(year string, month string, day string) bool {
 	y := year.int()
 	m := month.int()
 	dd := day.int()
@@ -98,7 +98,7 @@ pub fn (p Personnummer) is_male() bool {
 // is_coordination_number will check if a Swedish personal identity number
 // is a coordination number or not.
 pub fn (p Personnummer) is_coordination_number() bool {
-	return test_date(p.full_year, p.month, (p.day.int() - 60).str())
+	return validate_date(p.full_year, p.month, (p.day.int() - 60).str())
 }
 
 // get_age will return the age from a Swedish personal identity number.
@@ -186,7 +186,7 @@ fn (mut p Personnummer) parse(input string) ?bool {
 pub fn (p Personnummer) valid() bool {
 	valid := luhn(p.year + p.month + p.day + p.num) == p.check.int()
 
-	if valid && test_date(p.full_year, p.month, p.day) {
+	if valid && validate_date(p.full_year, p.month, p.day) {
 		return true
 	}
 
