@@ -56,15 +56,11 @@ mut:
 // struct Options {
 // }
 
-// new function will parse a Swedish personal identity numbers and returns a new struct or a error.
-pub fn new(pin string) ?Personnummer {
+// parse function will parse a Swedish personal identity numbers and returns a new struct or a error.
+pub fn parse(pin string) ?Personnummer {
 	mut p := Personnummer{}
 
 	p.parse(pin) or { return personnummer.err_invalid_number }
-
-	if !p.valid() {
-		return personnummer.err_invalid_number
-	}
 
 	return p
 }
