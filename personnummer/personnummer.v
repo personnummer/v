@@ -22,7 +22,9 @@ fn luhn(str string) int {
 	 return int(math.pow(math.ceil(math.round(sum)/10)*10 - sum, 1.0))
 }
 
+
 fn test_date(year string, month string , day string ) bool {
+	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L34
 	//  y := year.int()
 	//  m := month.int()
 	//  dd := day.int()
@@ -50,6 +52,32 @@ struct Personnummer {
 // struct Options {
 // }
 
+pub fn (p Personnummer) format(longFormat bool) string {
+	if longFormat {
+		return p.century + p.year + p.month + p.day + p.num + p.check
+	}
+
+	return p.year + p.month + p.day + p.sep + p.num + p.check
+}
+
+pub fn (p Personnummer) is_female() bool {
+	return !p.is_male()
+}
+
+pub fn (p Personnummer) is_male() bool {
+	sex_digit := p.num[2 .. 3].int()
+	return sex_digit % 2 == 1
+}
+
+pub fn (p Personnummer) get_age() int {
+	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L82
+	return 0
+}
+
+pub fn (p Personnummer) is_coordination_number() bool {
+	// TODO https://github.com/personnummer/d/blob/master/src/personnummer.d#L98
+	return false
+}
 
 // parse Swedish personal identity numbers and set struct properpties or return a error.
 fn (mut p Personnummer) parse(input string) ?bool {
@@ -119,14 +147,14 @@ pub fn (p Personnummer) valid() bool {
 
 		// try
 		// {
-		// 	if (valid && testDate(this.fullYear, this.month, this.day))
+		// 	if (valid && testDate(p.fullYear, p.month, p.day))
 		// 	{
 		// 		return true;
 		// 	}
 		// }
 		// catch (Throwable)
 		// {
-		// 	return valid && this.isCoordinationNumber();
+		// 	return valid && p.isCoordinationNumber();
 		// }
 
 		// return false;
@@ -138,14 +166,13 @@ pub fn (p Personnummer) valid() bool {
 pub fn new(pin string) ?Personnummer {
 	mut p := Personnummer{}
 
-	output := p.parse(pin) or {
+	p.parse(pin) or {
 		return error('parse error')
 	}
 
-	if output {
-		p.valid()
-		return p
+	if !p.valid() {
+		return error('new error')
 	}
 
-	return error('new error')
+	return p
 }
