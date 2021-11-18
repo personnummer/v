@@ -2,7 +2,7 @@
 
 Validate Swedish personal identity numbers. Follows version 3 of the [specification](https://github.com/personnummer/meta#package-specification-v3).
 
-Install the module with dub:
+Install the module with vpm:
 
 ```
 v install personnummer
