@@ -3,6 +3,8 @@ module personnummer
 import time
 import math
 
+const err_invalid_number = error('Invalid swedish personal identity number')
+
 // Test if the given string is a valid luhn string.
 fn luhn(str string) int {
 	mut sum := 0
@@ -55,11 +57,11 @@ pub fn new(pin string) ?Personnummer {
 	mut p := Personnummer{}
 
 	p.parse(pin) or {
-		return error('parse error')
+		return err_invalid_number
 	}
 
 	if !p.valid() {
-		return error('new error')
+		return err_invalid_number
 	}
 
 	return p
@@ -137,11 +139,11 @@ fn (mut p Personnummer) parse(input string) ?bool {
 		p.num = pin[6 .. 9]
 		p.check = pin[9 .. 10]
 	} else {
-		return error('Invalid swedish personal identity number')
+		return err_invalid_number
 	}
 
 	if p.num == '000' {
-		return error('Invalid swedish personal identity number')
+		return err_invalid_number
 	}
 
 	p.sep = '-'
