@@ -21,31 +21,29 @@ fn luhn(str string) int {
 		sum += v
 	}
 
-	return int(math.pow(math.ceil(math.round(sum)/10)*10 - sum, 1.0))
+	return int(math.pow(math.ceil(math.round(sum) / 10) * 10 - sum, 1.0))
 }
 
 // Test if the input parameters are a valid date or not.
-fn test_date(year string, month string , day string) bool {
+fn test_date(year string, month string, day string) bool {
 	y := year.int()
 	m := month.int()
 	dd := day.int()
-	d := time.parse('$year-$month-$day 00:00:00') or {
-		return false
-	}
+	d := time.parse('$year-$month-$day 00:00:00') or { return false }
 	return d.year == y && d.month == m && d.day == dd
 }
 
 // Personnummer represents the personnummer struct.
 struct Personnummer {
-	mut:
-	century             string
-	full_year           string
-	year                string
-	month               string
-	day                 string
-	sep                 string
-	num                 string
-	check               string
+mut:
+	century   string
+	full_year string
+	year      string
+	month     string
+	day       string
+	sep       string
+	num       string
+	check     string
 }
 
 // // Options represents the personnummer options.
@@ -56,12 +54,10 @@ struct Personnummer {
 pub fn new(pin string) ?Personnummer {
 	mut p := Personnummer{}
 
-	p.parse(pin) or {
-		return err_invalid_number
-	}
+	p.parse(pin) or { return personnummer.err_invalid_number }
 
 	if !p.valid() {
-		return err_invalid_number
+		return personnummer.err_invalid_number
 	}
 
 	return p
@@ -84,13 +80,13 @@ pub fn (p Personnummer) is_female() bool {
 
 // Check if a Swedish personal identity number is for a male.
 pub fn (p Personnummer) is_male() bool {
-	sex_digit := p.num[2 .. 3].int()
+	sex_digit := p.num[2..3].int()
 	return sex_digit % 2 == 1
 }
 
 // Check if a Swedish personal identity number is a coordination number or not.
 pub fn (p Personnummer) is_coordination_number() bool {
-	return test_date(p.full_year, p.month, (p.day.int()-60).str())
+	return test_date(p.full_year, p.month, (p.day.int() - 60).str())
 }
 
 // Get age from a Swedish personal identity number.
@@ -101,9 +97,7 @@ pub fn (p Personnummer) get_age() int {
 	}
 
 	now := time.now()
-	date := time.parse('$p.full_year-$p.month-$age_day 00:00:00') or {
-		return 0
-	}
+	date := time.parse('$p.full_year-$p.month-$age_day 00:00:00') or { return 0 }
 
 	if date.month > now.month {
 		return now.year - date.year - 1
@@ -127,23 +121,23 @@ fn (mut p Personnummer) parse(input string) ?bool {
 
 	if pin.len == 12 {
 		p.century = pin[0..2]
-		p.year = pin[2 .. 4]
-		p.month = pin[4 .. 6]
-		p.day = pin[6 .. 8]
-		p.num = pin[8 .. 11]
-		p.check = pin[11 .. 12]
+		p.year = pin[2..4]
+		p.month = pin[4..6]
+		p.day = pin[6..8]
+		p.num = pin[8..11]
+		p.check = pin[11..12]
 	} else if pin.len == 10 {
 		p.year = pin[0..2]
-		p.month = pin[2 .. 4]
-		p.day = pin[4 .. 6]
-		p.num = pin[6 .. 9]
-		p.check = pin[9 .. 10]
+		p.month = pin[2..4]
+		p.day = pin[4..6]
+		p.num = pin[6..9]
+		p.check = pin[9..10]
 	} else {
-		return err_invalid_number
+		return personnummer.err_invalid_number
 	}
 
 	if p.num == '000' {
-		return err_invalid_number
+		return personnummer.err_invalid_number
 	}
 
 	p.sep = '-'
