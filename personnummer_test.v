@@ -4,6 +4,17 @@ import net.http
 import json
 import personnummer
 
+__global (
+	list_json = ''
+)
+
+const available_list_formats = [
+	'long_format',
+	'short_format',
+	'separated_format',
+	'separated_long',
+]
+
 struct List {
 	integer          int
 	long_format      string
@@ -15,7 +26,6 @@ struct List {
 	is_male   bool [json: isMale]
 	is_female bool [json: isFemale]
 }
-
 fn (l List) get_format(s string) string {
 	if s == 'long_format' {
 		return l.long_format
@@ -30,23 +40,16 @@ fn (l List) get_format(s string) string {
 	}
 }
 
-const available_list_formats = [
-	'long_format',
-	'short_format',
-	'separated_format',
-	'separated_long',
-]
-
 fn get_test_list() []List {
-	// if (_test_list.len == 0)
-	// {
-	resp := http.get('https://raw.githubusercontent.com/personnummer/meta/master/testdata/list.json') or {
-		eprintln('failed to fetch test list from the github')
-		return []List{}
+	if list_json.len == 0 {
+		resp := http.get('https://raw.githubusercontent.com/personnummer/meta/master/testdata/list.json') or {
+			eprintln('failed to fetch test list from the github')
+			return []List{}
+		}
+		list_json = resp.text
 	}
-	text := resp.text
 
-	return json.decode([]List, text) or {
+	return json.decode([]List, list_json) or {
 		eprintln('failed to parse json')
 		return []List{}
 	}
