@@ -3,6 +3,7 @@ module test
 import net.http
 import json
 import personnummer
+import time
 
 __global (
 	list_json = ''
@@ -22,10 +23,11 @@ struct List {
 	separated_format string
 	separated_long   string
 	valid            bool
-	// ltype string [json: type]
-	is_male   bool [json: isMale]
-	is_female bool [json: isFemale]
+	ltype            string [json: 'type']
+	is_male          bool   [json: isMale]
+	is_female        bool   [json: isFemale]
 }
+
 fn (l List) get_format(s string) string {
 	if s == 'long_format' {
 		return l.long_format
@@ -113,4 +115,46 @@ fn test_personnummer_sex() {
 }
 
 fn test_personnummer_age() {
+	for i, item in get_test_list() {
+		if !item.valid {
+			continue
+		}
+
+		pin := item.get_format('separated_long')
+
+		year := pin[0..4].int()
+		month := pin[4..6].int()
+
+		mut age_day := pin[6..8].int()
+
+		if item.ltype == 'con' {
+			age_day = age_day - 60
+		}
+
+		now := time.now()
+		date := time.new_time(time.Time{
+			year: year
+			month: month
+			day: age_day
+		})
+
+		mut expected := 0
+		if date.month > now.month {
+			expected = now.year - date.year - 1
+		} else if date.month == now.month && date.day > now.day {
+			expected = now.year - date.year - 1
+		} else {
+			expected = now.year - date.year
+		}
+
+		for j, format in test.available_list_formats {
+			if format != 'short_format' && !item.separated_format.contains('+') {
+				p := personnummer.parse(item.get_format(format)) or {
+					eprintln('failed to parse in test_personnummer_age for $format')
+					return
+				}
+				assert expected == p.get_age()
+			}
+		}
+	}
 }
