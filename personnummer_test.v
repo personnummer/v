@@ -72,7 +72,7 @@ fn test_personnummer_format() {
 		}
 
 		for j, format in test.available_list_formats {
-			if format != 'short_format' && !item.separated_format.contains('+') {
+			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format)) or {
 					eprintln('failed to parse in test_personnummer_format for $format')
 					return
@@ -148,7 +148,7 @@ fn test_personnummer_age() {
 		}
 
 		for j, format in test.available_list_formats {
-			if format != 'short_format' && !item.separated_format.contains('+') {
+			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format)) or {
 					eprintln('failed to parse in test_personnummer_age for $format')
 					return
