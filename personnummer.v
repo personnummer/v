@@ -52,12 +52,27 @@ mut:
 	check     string
 }
 
-// // options represents the personnummer options.
-// struct Options {
-// }
+// options represents the personnummer options.
+pub struct Options {
+}
+
+type Any = Options | string
+
+// new parse a Swedish personal identity numbers and returns a new struct or a error.
+pub fn new(args ...Any) ?Personnummer {
+	return parse(...args) or { return personnummer.err_invalid_number }
+}
 
 // parse function will parse a Swedish personal identity numbers and returns a new struct or a error.
-pub fn parse(pin string) ?Personnummer {
+pub fn parse(args ...Any) ?Personnummer {
+	pin := (args[0] as string).clone()
+
+	// -- Save for later when options is a thing.
+	// mut options := Options{}
+	// if args.len > 1 {
+	// 	options = args[1] as Options
+	// }
+
 	mut p := Personnummer{}
 
 	p.parse(pin) or { return personnummer.err_invalid_number }
