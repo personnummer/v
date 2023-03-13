@@ -1,0 +1,4 @@
+name: "V"
+maintainer: "@frozzare"
+spec: 3
+workflow: "v.yml"
