@@ -4,8 +4,6 @@ import time
 import math
 
 const err_invalid_number = error('Invalid swedish personal identity number')
-
-// const interim_letters = ['T', 'R', 'S', 'U', 'W', 'X', 'J', 'K', 'L', 'M', 'N']
 const interim_letters = 'TRSUWXJKLMN'.runes()
 
 // luhn will test if the given string is a valid luhn string.
