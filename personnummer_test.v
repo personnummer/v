@@ -6,7 +6,7 @@ import personnummer
 import time
 
 __global (
-	list_json = ''
+	json_data = map[string]string{}
 )
 
 const available_list_formats = [
@@ -29,32 +29,46 @@ struct List {
 }
 
 fn (l List) get_format(s string) string {
-	if s == 'long_format' {
-		return l.long_format
-	} else if s == 'short_format' {
-		return l.short_format
-	} else if s == 'separated_format' {
-		return l.separated_format
-	} else if s == 'separated_long' {
-		return l.separated_long
-	} else {
-		return ''
+	return match s {
+		'long_format' {
+			l.long_format
+		}
+		'short_format' {
+			l.short_format
+		}
+		'separated_format' {
+			l.separated_format
+		}
+		'separated_long' {
+			l.separated_long
+		}
+		else {
+			''
+		}
+	}.clone()
+}
+
+fn fetch_list(url string) []List {
+	if json_data[url].len == 0 {
+		resp := http.get(url) or {
+			eprintln('failed to fetch test list from the github')
+			return []List{}
+		}
+		json_data[url] = resp.text
+	}
+
+	return json.decode([]List, json_data[url]) or {
+		eprintln('failed to parse json')
+		return []List{}
 	}
 }
 
 fn get_test_list() []List {
-	if list_json.len == 0 {
-		resp := http.get('https://raw.githubusercontent.com/personnummer/meta/master/testdata/list.json') or {
-			eprintln('failed to fetch test list from the github')
-			return []List{}
-		}
-		list_json = resp.text
-	}
+	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/master/testdata/list.json')
+}
 
-	return json.decode([]List, list_json) or {
-		eprintln('failed to parse json')
-		return []List{}
-	}
+fn get_interim_list() []List {
+	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/master/testdata/interim.json')
 }
 
 fn test_personnummer_list() {
@@ -155,6 +169,42 @@ fn test_personnummer_age() {
 				}
 				assert expected == p.get_age()
 			}
+		}
+	}
+}
+
+fn test_valid_interim_numbers() {
+	for i, item in get_interim_list() {
+		if !item.valid {
+			continue
+		}
+
+		for j, format in test.available_list_formats {
+			if format != 'short_format' {
+				p := personnummer.parse(item.get_format(format), personnummer.Options{
+					allow_interim_number: true
+				}) or {
+					eprintln('failed to parse in test_interim_numbers for $format')
+					return
+				}
+
+				assert item.get_format('separated_format') == p.format(false)
+				assert item.get_format('long_format') == p.format(true)
+			}
+		}
+	}
+}
+
+fn test_invalid_interim_numbers() {
+	for i, item in get_interim_list() {
+		if item.valid {
+			continue
+		}
+
+		for j, format in test.available_list_formats {
+			personnummer.parse(item.get_format(format), personnummer.Options{
+				allow_interim_number: true
+			}) or { assert true == true }
 		}
 	}
 }

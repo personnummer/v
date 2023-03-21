@@ -5,6 +5,9 @@ import math
 
 const err_invalid_number = error('Invalid swedish personal identity number')
 
+// const interim_letters = ['T', 'R', 'S', 'U', 'W', 'X', 'J', 'K', 'L', 'M', 'N']
+const interim_letters = 'TRSUWXJKLMN'.runes()
+
 // luhn will test if the given string is a valid luhn string.
 fn luhn(str string) int {
 	mut sum := 0
@@ -54,6 +57,8 @@ mut:
 
 // options represents the personnummer options.
 pub struct Options {
+	allow_coordination_number bool = true
+	allow_interim_number      bool
 }
 
 type Any = Options | string
@@ -67,15 +72,17 @@ pub fn new(args ...Any) ?Personnummer {
 pub fn parse(args ...Any) ?Personnummer {
 	pin := (args[0] as string).clone()
 
-	// -- Save for later when options is a thing.
-	// mut options := Options{}
-	// if args.len > 1 {
-	// 	options = args[1] as Options
-	// }
+	mut options := Options{
+		allow_coordination_number: true
+		allow_interim_number: true
+	}
+	if args.len > 1 {
+		options = args[1] as Options
+	}
 
 	mut p := Personnummer{}
 
-	p.parse(pin) or { return personnummer.err_invalid_number }
+	p.parse(pin, options) or { return personnummer.err_invalid_number }
 
 	return p
 }
@@ -114,6 +121,12 @@ pub fn (p Personnummer) is_coordination_number() bool {
 	return validate_date(p.full_year, p.month, (p.day.int() - 60).str())
 }
 
+// is_interim_number will check if a Swedish personal identity number
+// is a interim number or not.
+pub fn (p Personnummer) is_interim_number() bool {
+	return p.num[0] in personnummer.interim_letters
+}
+
 // get_age will return the age from a Swedish personal identity number.
 pub fn (p Personnummer) get_age() int {
 	mut age_day := p.day
@@ -140,7 +153,7 @@ pub fn (p Personnummer) get_age() int {
 }
 
 // parse a Swedish personal identity numbers and set struct properpties or return a error.
-fn (mut p Personnummer) parse(input string) ?bool {
+fn (mut p Personnummer) parse(input string, options Options) ?bool {
 	mut pin := input
 
 	plus := pin.contains('+')
@@ -192,12 +205,21 @@ fn (mut p Personnummer) parse(input string) ?bool {
 
 	p.full_year = p.century + p.year
 
+	if p.is_coordination_number() && !options.allow_coordination_number {
+		return personnummer.err_invalid_number
+	}
+
+	if p.is_interim_number() && !options.allow_interim_number {
+		return personnummer.err_invalid_number
+	}
+
 	return true
 }
 
 // valid validates a Swedish personal identity number.
 pub fn (p Personnummer) valid() bool {
-	valid := luhn(p.year + p.month + p.day + p.num) == p.check.int()
+	num := if p.is_interim_number() { '1' + p.num[1..] } else { p.num }
+	valid := luhn(p.year + p.month + p.day + num) == p.check.int()
 
 	if valid && validate_date(p.full_year, p.month, p.day) {
 		return true
