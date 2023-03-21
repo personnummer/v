@@ -54,7 +54,7 @@ fn fetch_list(url string) []List {
 			eprintln('failed to fetch test list from the github')
 			return []List{}
 		}
-		json_data[url] = resp.text
+		json_data[url] = resp.body
 	}
 
 	return json.decode([]List, json_data[url]) or {

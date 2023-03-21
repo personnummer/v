@@ -63,12 +63,12 @@ pub struct Options {
 type Any = Options | string
 
 // new parse a Swedish personal identity numbers and returns a new struct or a error.
-pub fn new(args ...Any) ?Personnummer {
+pub fn new(args ...Any) !Personnummer {
 	return parse(...args) or { return personnummer.err_invalid_number }
 }
 
 // parse function will parse a Swedish personal identity numbers and returns a new struct or a error.
-pub fn parse(args ...Any) ?Personnummer {
+pub fn parse(args ...Any) !Personnummer {
 	pin := (args[0] as string).clone()
 
 	mut options := Options{}
@@ -154,7 +154,7 @@ pub fn (p Personnummer) get_age() int {
 }
 
 // parse a Swedish personal identity numbers and set struct properpties or return a error.
-fn (mut p Personnummer) parse(input string, options Options) ?bool {
+fn (mut p Personnummer) parse(input string, options Options) !bool {
 	mut pin := input
 
 	plus := pin.contains('+')
