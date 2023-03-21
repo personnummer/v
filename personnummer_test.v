@@ -128,6 +128,41 @@ fn test_personnummer_sex() {
 	}
 }
 
+fn test_personnummer_date() {
+	for i, item in get_test_list() {
+		if !item.valid {
+			continue
+		}
+
+		pin := item.get_format('separated_long')
+
+		year := pin[0..4].int()
+		month := pin[4..6].int()
+
+		mut age_day := pin[6..8].int()
+
+		if item.ltype == 'con' {
+			age_day = age_day - 60
+		}
+
+		date := time.new_time(time.Time{
+			year: year
+			month: month
+			day: age_day
+		})
+
+		for j, format in test.available_list_formats {
+			if format != 'short_format' {
+				p := personnummer.parse(item.get_format(format)) or {
+					eprintln('failed to parse in test_personnummer_age for $format')
+					return
+				}
+				assert date == p.get_date()
+			}
+		}
+	}
+}
+
 fn test_personnummer_age() {
 	for i, item in get_test_list() {
 		if !item.valid {

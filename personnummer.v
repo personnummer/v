@@ -4,6 +4,7 @@ import time
 import math
 
 const err_invalid_number = error('Invalid swedish personal identity number')
+
 const interim_letters = 'TRSUWXJKLMN'.runes()
 
 // luhn will test if the given string is a valid luhn string.
@@ -37,7 +38,7 @@ fn validate_date(year string, month string, day string) bool {
 		day: dd
 	})
 
-	return d.year == y && d.month == m && d.day == dd
+	return d.year == y && d.month == m && d.day == dd && dd > 0
 }
 
 // personnummer represents the personnummer struct.
@@ -122,19 +123,24 @@ pub fn (p Personnummer) is_interim_number() bool {
 	return p.num[0] in personnummer.interim_letters
 }
 
-// get_age will return the age from a Swedish personal identity number.
-pub fn (p Personnummer) get_age() int {
+// get_date will return the date from a Swedish personal identity number
+pub fn (p Personnummer) get_date() time.Time {
 	mut age_day := p.day
 	if p.is_coordination_number() {
 		age_day = (age_day.int() - 60).str()
 	}
 
-	now := time.now()
-	date := time.new_time(time.Time{
+	return time.new_time(time.Time{
 		year: p.full_year.int()
 		month: p.month.int()
 		day: age_day.int()
 	})
+}
+
+// get_age will return the age from a Swedish personal identity number.
+pub fn (p Personnummer) get_age() int {
+	date := p.get_date()
+	now := time.now()
 
 	if date.month > now.month {
 		return now.year - date.year - 1
