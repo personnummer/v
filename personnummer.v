@@ -70,10 +70,7 @@ pub fn new(args ...Any) ?Personnummer {
 pub fn parse(args ...Any) ?Personnummer {
 	pin := (args[0] as string).clone()
 
-	mut options := Options{
-		allow_coordination_number: true
-		allow_interim_number: true
-	}
+	mut options := Options{}
 	if args.len > 1 {
 		options = args[1] as Options
 	}
