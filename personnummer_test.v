@@ -45,7 +45,7 @@ fn (l List) get_format(s string) string {
 		else {
 			''
 		}
-	}.clone()
+	}
 }
 
 fn fetch_list(url string) []List {
@@ -188,8 +188,8 @@ fn test_valid_interim_numbers() {
 					return
 				}
 
-				assert item.get_format('separated_format') == p.format(false)
-				assert item.get_format('long_format') == p.format(true)
+				assert item.separated_format == p.format(false)
+				assert item.long_format == p.format(true)
 			}
 		}
 	}
