@@ -56,8 +56,9 @@ mut:
 
 // options represents the personnummer options.
 pub struct Options {
-	allow_coordination_number bool = true
-	allow_interim_number      bool
+pub:
+		allow_coordination_number bool = true
+		allow_interim_number      bool
 }
 
 type Any = Options | string
