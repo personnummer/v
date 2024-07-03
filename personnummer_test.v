@@ -23,9 +23,9 @@ struct List {
 	separated_format string
 	separated_long   string
 	valid            bool
-	ltype            string [json: 'type']
-	is_male          bool   [json: isMale]
-	is_female        bool   [json: isFemale]
+	ltype            string @[json: 'type']
+	is_male          bool   @[json: isMale]
+	is_female        bool   @[json: isFemale]
 }
 
 fn (l List) get_format(s string) string {
@@ -145,7 +145,7 @@ fn test_personnummer_date() {
 			age_day = age_day - 60
 		}
 
-		date := time.new_time(time.Time{
+		date := time.new(time.Time{
 			year: year
 			month: month
 			day: age_day
@@ -181,7 +181,7 @@ fn test_personnummer_age() {
 		}
 
 		now := time.now()
-		date := time.new_time(time.Time{
+		date := time.new(time.Time{
 			year: year
 			month: month
 			day: age_day

@@ -32,7 +32,7 @@ fn validate_date(year string, month string, day string) bool {
 	m := month.int()
 	dd := day.int()
 
-	d := time.new_time(time.Time{
+	d := time.new(time.Time{
 		year: y
 		month: m
 		day: dd
@@ -130,7 +130,7 @@ pub fn (p Personnummer) get_date() time.Time {
 		age_day = (age_day.int() - 60).str()
 	}
 
-	return time.new_time(time.Time{
+	return time.new(time.Time{
 		year: p.full_year.int()
 		month: p.month.int()
 		day: age_day.int()
