@@ -1,8 +1,7 @@
-module test
+module personnummer
 
 import net.http
-import json
-import personnummer
+import json2
 import time
 
 __global (
@@ -57,7 +56,7 @@ fn fetch_list(url string) []List {
 		json_data[url] = resp.body
 	}
 
-	return json.decode([]List, json_data[url]) or {
+	return json2.decode[[]List](json_data[url]) or {
 		eprintln('failed to parse json')
 		return []List{}
 	}
@@ -73,7 +72,7 @@ fn get_interim_list() []List {
 
 fn test_personnummer_list() {
 	for i, item in get_test_list() {
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			assert item.valid == personnummer.valid(item.get_format(format))
 		}
 	}
@@ -85,7 +84,7 @@ fn test_personnummer_format() {
 			continue
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format)) or {
 					eprintln('failed to parse in test_personnummer_format for $format')
@@ -104,7 +103,7 @@ fn test_personnummer_error() {
 			continue
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			personnummer.parse(item.get_format(format)) or { assert true == true }
 		}
 	}
@@ -116,7 +115,7 @@ fn test_personnummer_sex() {
 			continue
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			p := personnummer.parse(item.get_format(format)) or {
 				eprintln('failed to parse in test_personnummer_sex for $format')
 				return
@@ -151,7 +150,7 @@ fn test_personnummer_date() {
 			day: age_day
 		})
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format)) or {
 					eprintln('failed to parse in test_personnummer_age for $format')
@@ -196,7 +195,7 @@ fn test_personnummer_age() {
 			expected = now.year - date.year
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format)) or {
 					eprintln('failed to parse in test_personnummer_age for $format')
@@ -214,7 +213,7 @@ fn test_valid_interim_numbers() {
 			continue
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			if format != 'short_format' {
 				p := personnummer.parse(item.get_format(format), personnummer.Options{
 					allow_interim_number: true
@@ -236,7 +235,7 @@ fn test_invalid_interim_numbers() {
 			continue
 		}
 
-		for j, format in test.available_list_formats {
+		for j, format in available_list_formats {
 			personnummer.parse(item.get_format(format), personnummer.Options{
 				allow_interim_number: true
 			}) or { assert true == true }
