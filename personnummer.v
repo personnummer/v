@@ -32,13 +32,9 @@ fn validate_date(year string, month string, day string) bool {
 	m := month.int()
 	dd := day.int()
 
-	d := time.new(time.Time{
-		year: y
-		month: m
-		day: dd
-	})
+	dim := time.days_in_month(m, y) or { return false }
 
-	return d.year == y && d.month == m && d.day == dd && dd > 0
+	return dd > 0 && dd <= dim
 }
 
 // personnummer represents the personnummer struct.
