@@ -63,11 +63,11 @@ fn fetch_list(url string) []List {
 }
 
 fn get_test_list() []List {
-	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/master/testdata/list.json')
+	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/HEAD/testdata/list.json')
 }
 
 fn get_interim_list() []List {
-	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/master/testdata/interim.json')
+	return fetch_list('https://raw.githubusercontent.com/personnummer/meta/HEAD/testdata/interim.json')
 }
 
 fn test_personnummer_list() {
